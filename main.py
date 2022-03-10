@@ -1,7 +1,7 @@
 '''
 
 THIS SCRIPT AND INSTRUCTIONS HAVE ONLY BEEN USED DURING
-2022 PUNJAB ELECTIONS RESULT DECLARATION DAY.
+2022 MARCH 10 ELECTIONS RESULT DECLARATION DAY.
 ECI MIGHT CHANGE THEIR WEBSITE, MAKING THIS SCRIPT USELESS.
 USE WITH CAUTION
 
@@ -14,11 +14,16 @@ from pathlib import Path
 # prepared this txt file manually by copying from 
 # # eci website's by 'viewing source'
 # this is only for punjab. extract similar for up/goa/uk
-vals = Path('punjab_constituency_value.txt').read_text()
+vals = Path('up_constituency_value.txt').read_text()
 print(vals[:100])
 vals_ls = vals.split('\n')
 
-link = "https://results.eci.gov.in/ResultAcGenMar2022/RoundwiseS19"
+# change the 'S19' part of this string as per the state
+# punjab: S19
+# goa S05
+# uk: S28
+# up: S24
+link = "https://results.eci.gov.in/ResultAcGenMar2022/RoundwiseS24"
 # preparing a dict in {"constituency_name:(value,link)"} format
 d = {}
 for val in vals_ls[:]:
@@ -39,7 +44,7 @@ def get_roundwise_votes(link:str) -> tuple[pd.DataFrame,pd.DataFrame]:
     # extracting tables from webpage having 'o.s.n' string 
     # as I found table which has the data we require has this string
     df_ls = pd.read_html(link,match='O.S.N.*')
-    df =  df_ls[1].copy()
+    df =  df_ls[-1].copy()
     # the extracted table has multi indexed colnames, treating it
     state_city = df.columns[0][0]
     df.columns = [col for _,_,col in df.columns]
@@ -55,8 +60,8 @@ def get_roundwise_votes(link:str) -> tuple[pd.DataFrame,pd.DataFrame]:
 a,b = get_roundwise_votes("https://results.eci.gov.in/ResultAcGenMar2022/RoundwiseS1981.htm?ac=81")
 
 for item in d:
+    print(item)
     df,_ = get_roundwise_votes(d[item][1])
     df['constituency_from_link'] = item
-    df.to_csv(f'out/roundwise/pb/{item}.csv',index=False)
-    print(item)
-    sleep(10)
+    df.to_csv(f'out/roundwise/up/{item}.csv',index=False)
+    sleep(2)
